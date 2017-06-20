@@ -1,29 +1,39 @@
-<server>
+<server description="new server">
 
+    <!-- Enable features -->
     <featureManager>
         <feature>webProfile-7.0</feature>
-    </featureManager>
+        <feature>localConnector-1.0</feature>
+    	<feature>jaxrs-2.0</feature>
+	</featureManager>
 
-    <httpEndpoint id="defaultHttpEndpoint"
-                  host="*"
-                  httpPort="9080">
-        <tcpOptions soReuseAddr="true"/>
-    </httpEndpoint>
+    <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
+    <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint"/>
+                  
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
 
-    <application name="LocalCartKafkaProducer" context-root="/localCartProducer"
-    	location="${appLocation}" type="war">
-    </application>
+
+    <applicationMonitor updateTrigger="mbean"/>
     
     <library id="kafkaLoginLib">
     	<file name="/Users/dtaieb/.m2/repository/org/apache/kafka/kafka-clients/0.10.0.0/kafka-clients-0.10.0.0.jar"/>
     	<file name="/Users/dtaieb/.m2/repository/org/apache/kafka/kafka-log4j-appender/0.10.0.0/kafka-log4j-appender-0.10.0.0.jar"/>
     	<file name="/Users/dtaieb/watsondev/workspaces/cds_workspace/localcart/get-started-java/src/main/webapp/WEB-INF/lib/messagehub.login-1.0.0.jar"/>
     </library>
+    
+    <!-- library id="kafkaLoginLib">
+    	<file name="${server.config.dir}/dropins/LocalCartKafkaProducer.war/WEB-INF/lib/kafka-clients-0.10.0.0.jar"/>
+    	<file name="${server.config.dir}/dropins/LocalCartKafkaProducer.war/WEB-INF/lib/kafka-log4j-appender-0.10.0.0.jar"/>
+    	<file name="${server.config.dir}/dropins/LocalCartKafkaProducer.war/WEB-INF/lib/messagehub.login-1.0.0.jar">
+    </library-->
 
     <jaasLoginModule className="com.ibm.messagehub.login.MessageHubLoginModule" controlFlag="REQUIRED" id="KafkaClient" libraryRef="kafkaLoginLib">
                 
-        <options password="cKAPrSrXXgCcXW45d2B1joYY9K8BKcwX" serviceName="kafka" username="9T80hbqdDRQxqLFB"/>
+        <options password="${env.MESSAGEHUB_PASSWORD}" serviceName="kafka" username="${env.MESSAGEHUB_USER}"/>
     </jaasLoginModule>
     
     <jaasLoginContextEntry id="KafkaClient" loginModuleRef="KafkaClient" name="KafkaClient"/>
+
+    <webApplication id="LocalCartKafkaProducer" location="LocalCartKafkaProducer.war" name="LocalCartKafkaProducer"/>
 </server>

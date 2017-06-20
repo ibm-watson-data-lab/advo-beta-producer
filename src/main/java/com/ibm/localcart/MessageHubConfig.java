@@ -41,11 +41,10 @@ public class MessageHubConfig {
 	//Hold configuration key/value pairs
 	private Map<String, String> config = new HashMap<>();
 	
-	private static final String KAFKA_TOPIC_TWEETS = "kafka.topic.tweet";    //Key for name of the kafka topic holding used for publishing the tweets
-	private static final String KAFKA_USER_NAME = "kafka.user.name";
-	private static final String KAFKA_USER_PASSWORD = "kafka.user.password";
+	private static final String KAFKA_USER_NAME = "KAFKA_USER_NAME";
+	private static final String KAFKA_USER_PASSWORD = "KAFKA_PASSWORD";
 
-	private static final String MESSAGEHUB_API_KEY = "api_key";
+	private static final String MESSAGEHUB_API_KEY = "KAFKA_API_KEY";
 	private static final String MESSAGEHUB_REST_URL = "kafka_rest_url";
 	
 	private static MessageHubConfig instance = null;
@@ -79,7 +78,11 @@ public class MessageHubConfig {
 	}
 
 	private MessageHubConfig(){
-		registerConfigKey(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG);
+		registerConfigKey(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, "kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,"
+				+ "kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,"
+				+ "kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,"
+				+ "kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,"
+				+ "kafka05-prod01.messagehub.services.us-south.bluemix.net:9093");
 		registerConfigKey(CommonClientConfigs.CLIENT_ID_CONFIG, "demo.watson.twitter.messagehub");
 		registerConfigKey("auto.offset.reset", "latest");
 		registerConfigKey("acks", "-1");
@@ -96,11 +99,10 @@ public class MessageHubConfig {
 		registerConfigKey(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "changeit");
 		registerConfigKey(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "HTTPS");
 		registerConfigKey(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL" );
-		registerConfigKey(MessageHubConfig.KAFKA_TOPIC_TWEETS, "demo.tweets.watson.topic");
 		registerConfigKey(MessageHubConfig.KAFKA_USER_NAME);
 		registerConfigKey(MessageHubConfig.KAFKA_USER_PASSWORD);
 		registerConfigKey(MessageHubConfig.MESSAGEHUB_API_KEY);
-		registerConfigKey(MessageHubConfig.MESSAGEHUB_REST_URL);
+		registerConfigKey(MessageHubConfig.MESSAGEHUB_REST_URL, "https://kafka-rest-prod01.messagehub.services.us-south.bluemix.net:443");
 		
 		setConfig("value.serializer", StringSerializer.class.getName());
 	      
@@ -141,6 +143,10 @@ public class MessageHubConfig {
 
 	private void registerConfigKey( String key, String defaultValue ) {
 		String value = System.getProperty( key );
+		if (value == null ){
+			value = System.getenv( key );
+		}
+		
 		if ( value == null ){
 			value = defaultValue;
 		}
