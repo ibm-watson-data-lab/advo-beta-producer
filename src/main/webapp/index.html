@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello World</title>
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="well"><h1><center>Local Cart MessageHub/Kafka Producer.</center></h1></div>
+        
+        <div style="margin-top:50px;margin-bottom:50px">
+        <span class="stats">
+  			Total # of events <span id="totalEvents" class="badge">0</span>
+		</span>
+		<span class="stats">
+  			Total # of "login" events <span id="login" class="badge">0</span>
+		</span>
+		<span class="stats">
+  			Total # of "add to cart" events <span id="addToCart" class="badge">0</span>
+		</span>
+		<span class="stats">
+  			Total # of "checkout" events <span id="checkout" class="badge">0</span>
+		</span>
+		<span class="stats">
+  			Total # of "browsing" events <span id="browsing" class="badge">0</span>
+		</span>
+		</div>
+		
+		<div class="row">
+			<div class="col-sm-4" style="padding: 0px 0px 0px 5px;">
+				<div class="form-group">
+					<div class="rendererOpt">
+                    	<label class="field">Events Per Seconds:<span id="epsval" style="margin-left:10px">2</span></label>
+                    	<div id="epsslider" name="eps" data-min=0 data-max=20 data-default=2 style="margin: 0 0.6em;"></div>
+                	</div>
+				</div>
+			</div>
+		</div>
+	</div>
+    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+    	function fetchStats(){
+    		setTimeout(function(){
+    			$.get("./api/stats")
+    				.done(function(data){
+    					$("#totalEvents").text(data.totalEvents);
+    					$("#login").text(data.login);
+    					$("#addToCart").text(data.addToCart);
+    					$("#checkout").text(data.checkout);
+    					$("#browsing").text(data.browsing);
+    					$("#epsval").text(data.eps);
+    					fetchStats();
+    				})
+    				.fail(function(error){
+    					console.log("error", error);
+    					fetchStats();
+    				});
+    		}, 1000);
+    	}
+    	fetchStats();
+    	
+    	$("#epsslider").each(function() {
+    	    var sliderElt = $(this)
+    	    var thisOption = sliderElt.attr('name')
+    	    var min = sliderElt.data("min")
+    	    var max = sliderElt.data("max")
+    	    var val = sliderElt.data("default")
+    	    sliderElt.slider({
+    	        min: isNaN(min) ? 0 : min,
+    	        max: isNaN(max) ? 100 : max,
+    	        value: isNaN(val) ? 50 : val,
+    	        change: function(evt, ui) {
+    	            $("#epsval").text(ui.value);
+    	            $.ajax({
+    	                type: "POST",
+    	                url: "./api/eps",
+    	                data: JSON.stringify({ "eps": ui.value }),
+    	                contentType: "application/json; charset=utf-8",
+    	                dataType: "json",
+    	                success: function(data){console.log("Successfully updated Event Per Second rate", data);},
+    	                failure: function(errMsg) {console.log("error", error);}
+    	            });
+    	        },
+    	        slide: function(evt, ui) {
+    	            $("#epsval").text(ui.value)
+    	        }
+    	    });
+    	});
+    </script>
+</body>
+
+</html>

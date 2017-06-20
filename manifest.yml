@@ -1,0 +1,7 @@
+---
+applications:
+ - name: Local Cart Producer
+   random-route: true
+   path: target/LocalCartKafkaProducer.war
+   memory: 512M
+   instances: 1

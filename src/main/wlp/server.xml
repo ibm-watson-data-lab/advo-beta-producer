@@ -1,0 +1,29 @@
+<server>
+
+    <featureManager>
+        <feature>webProfile-7.0</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="9080">
+        <tcpOptions soReuseAddr="true"/>
+    </httpEndpoint>
+
+    <application name="LocalCartKafkaProducer" context-root="/localCartProducer"
+    	location="${appLocation}" type="war">
+    </application>
+    
+    <library id="kafkaLoginLib">
+    	<file name="/Users/dtaieb/.m2/repository/org/apache/kafka/kafka-clients/0.10.0.0/kafka-clients-0.10.0.0.jar"/>
+    	<file name="/Users/dtaieb/.m2/repository/org/apache/kafka/kafka-log4j-appender/0.10.0.0/kafka-log4j-appender-0.10.0.0.jar"/>
+    	<file name="/Users/dtaieb/watsondev/workspaces/cds_workspace/localcart/get-started-java/src/main/webapp/WEB-INF/lib/messagehub.login-1.0.0.jar"/>
+    </library>
+
+    <jaasLoginModule className="com.ibm.messagehub.login.MessageHubLoginModule" controlFlag="REQUIRED" id="KafkaClient" libraryRef="kafkaLoginLib">
+                
+        <options password="cKAPrSrXXgCcXW45d2B1joYY9K8BKcwX" serviceName="kafka" username="9T80hbqdDRQxqLFB"/>
+    </jaasLoginModule>
+    
+    <jaasLoginContextEntry id="KafkaClient" loginModuleRef="KafkaClient" name="KafkaClient"/>
+</server>
