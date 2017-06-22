@@ -65,8 +65,7 @@ public class DataStream {
 	}
 
 	private void loadSampleData() throws Exception{
-		//URL url = new URL("https://github.com/ibm-cds-labs/advo-beta/raw/master/data/dataStream.json");
-		URL url = new URL("file:///Users/dtaieb/watsondev/workspaces/cds_workspace/localcart/advo-beta/data/dataStream.json");
+		URL url = new URL("https://github.com/ibm-cds-labs/advo-beta/raw/master/data/dataStream.json");
 	    
 	    JsonParser parser = new JsonParser();
 	    try (InputStream is = url.openConnection().getInputStream()){
