@@ -1,14 +1,17 @@
 .stats{
    	background:lightpink;
    	display:inline-block;
-   	max-width:160px;
+   	max-width:200px;
    	padding:20px;
-   	margin:20px;
+   	margin:10px;
    	border-radius:10px;
-   	height: 100px;
    	text-align: center;
-   }
-   .rendererOpt {
+}
+
+.totalEventBadge{
+	background:lightblue;
+}
+.rendererOpt {
     margin: 6px 0;
     padding: 6px 0;
 }

@@ -16,23 +16,7 @@
     <div class="container">
         <div class="well"><h1><center>Local Cart MessageHub/Kafka Producer.</center></h1></div>
         
-        <div style="margin-top:50px;margin-bottom:50px">
-        <span class="stats">
-  			Total # of events <br/><span id="totalEvents" class="badge">0</span>
-		</span>
-		<span class="stats">
-  			Total # of "login" events <br/><span id="login" class="badge">0</span>
-		</span>
-		<span class="stats">
-  			Total # of "add to cart" events <br/><span id="addToCart" class="badge">0</span>
-		</span>
-		<span class="stats">
-  			Total # of "checkout" events <br/><span id="checkout" class="badge">0</span>
-		</span>
-		<span class="stats">
-  			Total # of "browsing" events <br/><span id="browsing" class="badge">0</span>
-		</span>
-		</div>
+        <div id="badgesContainer" style="margin-top:50px;margin-bottom:50px"></div>
 		
 		<div class="row">
 			<div class="col-sm-4" style="padding: 0px 0px 0px 5px;">
@@ -54,15 +38,21 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <script>
+    	var types = ["browsing", "logout_without_purchase", "logout_with_purchase", "login", "checkout", "add_to_cart"];
+    	var badgesHtml = '<span class="stats totalEvent">Total # of events <br/><span id="totalEvents" class="badge">0</span></span>';
+    	for (i in types){
+    		type = types[i];
+    		badgesHtml += '<span class="stats"> Total # of "' + type +'" events <br/><span id="' + type + '" class="badge">0</span></span>';
+    	}
+    	$("#badgesContainer").html(badgesHtml);
     	function fetchStats(){
     		setTimeout(function(){
     			$.get("./api/stats")
     				.done(function(data){
     					$("#totalEvents").text(data.totalEvents);
-    					$("#login").text(data.login);
-    					$("#addToCart").text(data.addToCart);
-    					$("#checkout").text(data.checkout);
-    					$("#browsing").text(data.browsing);
+    					for (key in data ){
+    						$("#" + key ).text(data[key]);
+    					}
     					$("#epsval").text(data.eps);
     					fetchStats();
     				})

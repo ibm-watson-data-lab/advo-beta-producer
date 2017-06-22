@@ -42,14 +42,10 @@ import com.google.gson.JsonParser;
 public class DataStream {
 	
 	private static DataStream stream = null;
+	private static final String[] EVENT_TYPES = {"browsing", "logout_without_purchase", "logout_with_purchase", "login", "checkout", "add_to_cart"};
 	private JsonArray events = null;
 	private int eventPtr = 0;
 	private int eventPerSeconds = 2;
-	private long totalEvents = 0;
-	private long totalAddToCart = 0;
-	private long totalLogin = 0;
-	private long totalCheckout = 0;
-	private long totalBrowsing = 0;
 	
 	protected Map<String,Object> stats = new HashMap<>();
 	
@@ -59,6 +55,9 @@ public class DataStream {
 		try {
 			loadSampleData();
 			MessageHubConfig.getInstance().createTopicsIfNecessary( "clickStream" );
+			for (String type: EVENT_TYPES){
+				MessageHubConfig.getInstance().createTopicsIfNecessary( type );
+			}
 			startProducerThread();
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -66,7 +65,8 @@ public class DataStream {
 	}
 
 	private void loadSampleData() throws Exception{
-		URL url = new URL("https://github.com/ibm-cds-labs/advo-beta/raw/master/data/dataStream.json");
+		//URL url = new URL("https://github.com/ibm-cds-labs/advo-beta/raw/master/data/dataStream.json");
+		URL url = new URL("file:///Users/dtaieb/watsondev/workspaces/cds_workspace/localcart/advo-beta/data/dataStream.json");
 	    
 	    JsonParser parser = new JsonParser();
 	    try (InputStream is = url.openConnection().getInputStream()){
@@ -94,7 +94,8 @@ public class DataStream {
 		
 		try{
 			JsonObject event = events.get(eventPtr).getAsJsonObject();
-			event.addProperty("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(new Date()) );
+			event.remove("timestamp");
+			event.addProperty("event_time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(new Date()) );
 			return event;
 		}finally{
 			eventPtr++;
@@ -119,23 +120,18 @@ public class DataStream {
 						try{
 							for (int i = 0; i < eventPerSeconds; i++ ){
 								JsonObject event = getNextEvent();
-								ProducerRecord<String, Object> producerRecord = new ProducerRecord<String,Object>("clickStream", "click",
-									event.toString()
-								);
+								String eventStr = event.toString();
+								ProducerRecord<String, Object> producerRecord = 
+									new ProducerRecord<String,Object>("clickStream", "event", eventStr);
 								Future<RecordMetadata> future = kafkaProducer.send(producerRecord);
 								RecordMetadata metadata = future.get(5000, TimeUnit.MILLISECONDS);
-								stats.put("totalEvents", ++totalEvents);
+								incrementStats("totalEvents");
+								
+								//Also send record to its own topic
 								String type = event.get("click_event_type").getAsString();
-								if ("browsing".equals( type )){
-									stats.put("browsing", ++totalBrowsing);
-								}else if ("add_to_cart".equals(type)){
-									stats.put("addToCart", ++totalAddToCart);
-								}else if ("checkout".equals(type)){
-									stats.put("checkout", ++totalCheckout);
-								}else if ("login".equalsIgnoreCase( type) ){
-									stats.put("login", ++totalLogin);
-								}
-								//System.out.println("Successfully sent click record: Topic: " + metadata.topic() + " Offset: " + metadata.offset() );
+								producerRecord = new ProducerRecord<String,Object>(type, "subevent", eventStr );
+								kafkaProducer.send(producerRecord).get(5000, TimeUnit.MILLISECONDS);
+								incrementStats(type);
 							}
 							Thread.sleep( 1000L );
 						}catch (Throwable t){
@@ -148,6 +144,14 @@ public class DataStream {
 				}
 			}
 		},"Producer").start();
+	}
+
+	private void incrementStats(String key) {
+		if (!stats.containsKey( key )){
+			stats.put(key, 1);
+		}else{
+			stats.put(key, (int)stats.get(key) + 1);
+		}
 	}
 	
 }
