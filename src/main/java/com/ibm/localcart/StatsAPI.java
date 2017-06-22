@@ -41,6 +41,13 @@ public class StatsAPI extends Application{
 		return new Gson().toJson( DataStream.getInstance().stats );
 	}
 	
+	@GET
+    @Path("/config")
+    @Produces({"application/json"})
+	public String getConfig() throws Throwable{
+		return new Gson().toJson( MessageHubConfig.getInstance().getConfig() );
+	}
+	
 	public static class EPS{
 		public int eps;
 	}
