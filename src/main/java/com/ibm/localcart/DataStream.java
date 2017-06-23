@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -94,7 +95,9 @@ public class DataStream {
 		try{
 			JsonObject event = events.get(eventPtr).getAsJsonObject();
 			event.remove("timestamp");
-			event.addProperty("event_time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(new Date()) );
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			event.addProperty("event_time", sdf.format(new Date()) );
 			return event;
 		}finally{
 			eventPtr++;
