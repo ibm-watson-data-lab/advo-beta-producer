@@ -50,6 +50,10 @@ public class DataStream {
 	
 	protected Map<String,Object> stats = new HashMap<>();
 	
+	public Map<String,Object> getStats(){
+		return stats;
+	}
+	
 	private DataStream(){
 		System.out.println("Loading local cart data stream...");
 		

@@ -15,9 +15,12 @@
  *******************************************************************************/ 
 package com.ibm.localcart;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.HashMap;
@@ -31,6 +34,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.security.JaasUtils;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 /**
@@ -72,6 +76,12 @@ public class MessageHubConfig {
 	    		System.err.println(key + " configuration not set. Use setConfig(\"" + key + "\",<your Value>)"); 
 	    		ret = false;
 	    	}
+	    }
+	    
+	    if (ret && System.getProperty("USE_JAAS") != null){
+	    	//Create the jaas configuration
+	    	createJaasConfiguration(getConfig(MessageHubConfig.KAFKA_USER_NAME ), getConfig(MessageHubConfig.KAFKA_USER_PASSWORD) );
+
 	    }
 	    
 	    return ret;		
@@ -139,6 +149,37 @@ public class MessageHubConfig {
 	private void registerConfigKey( String key ){
 		
 		registerConfigKey(key, null);
+	}
+	
+	private String fixPath(String path){
+		return path.replaceAll("\\ / : * ? \" < > |,", "_");
+	}
+	
+	private void createJaasConfiguration( String userName, String password) throws Throwable{
+		//Create the jaas configuration
+		String packageName = MessageHubConfig.class.getPackage().getName().replace('.', File.separatorChar);
+		try(InputStream is = MessageHubConfig.class.getClassLoader().getResourceAsStream( packageName + "/jaas.conf")){
+			BufferedReader br = new BufferedReader(new InputStreamReader( is ) );
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			while ( (line = br.readLine()) != null ){
+				sb.append( line.replace( "$USERNAME", userName).replace( "$PASSWORD", password ));
+			}
+
+			File confDir= new File( System.getProperty("java.io.tmpdir") + File.separator + fixPath( userName ) );
+			confDir.mkdirs();
+			File confFile = new File( confDir, "jaas.conf");
+			FileWriter fw = new FileWriter( confFile );
+			fw.write( sb.toString() );
+			fw.close();
+
+			//Set the jaas login config property
+			System.out.println("Registering JaasConfiguration: " + confFile.getAbsolutePath());
+			System.setProperty(JaasUtils.JAVA_LOGIN_CONFIG_PARAM, confFile.getAbsolutePath() );
+		}catch (Throwable t){
+			t.printStackTrace();
+			throw t;
+		}        
 	}
 
 	private void registerConfigKey( String key, String defaultValue ) {

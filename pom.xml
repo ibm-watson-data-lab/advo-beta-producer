@@ -101,7 +101,47 @@
                     </bootstrapProperties>
                 </configuration>
             </plugin>
-        </plugins>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-shade-plugin</artifactId>
+			  <version>3.0.0</version>
+			  <executions>
+			    <execution>
+			      <phase>package</phase>
+			      <goals>
+			        <goal>shade</goal>
+			      </goals>
+			      <configuration>
+		              <shadedArtifactAttached>true</shadedArtifactAttached>
+		              <shadedClassifierName>uber</shadedClassifierName>
+		              <artifactSet>
+						  <excludes>
+							<exclude>javax.ws.rs:javax.ws.rs-api</exclude>
+						  </excludes>
+					</artifactSet>
+		          </configuration>
+			    </execution>
+			  </executions>
+			</plugin>
+			<plugin>
+				<groupId>com.coderplus.maven.plugins</groupId>
+				<artifactId>copy-rename-maven-plugin</artifactId>
+				<version>1.0</version>
+ 				<executions>
+    				<execution>
+   						<id>rename-file</id>
+     					<phase>package</phase>
+      					<goals>
+        					<goal>copy</goal>
+      					</goals>
+      					<configuration>
+        					<sourceFile>target/LocalCartKafkaProducer-${project.version}-uber.war</sourceFile>
+        					<destinationFile>target/LocalCartKafkaProducer-${project.version}-uber.jar</destinationFile>
+      					</configuration>
+    				</execution>
+  				</executions>
+			</plugin>
+	    </plugins>
     </build>
 
     <name>Watson Data Platform Advo Beta</name>

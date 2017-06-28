@@ -16,21 +16,15 @@
 
     <applicationMonitor updateTrigger="mbean"/>
     
-    <library id="kafkaLoginLib">
-    	<file name="/Users/dtaieb/.m2/repository/org/apache/kafka/kafka-clients/0.10.0.0/kafka-clients-0.10.0.0.jar"/>
-    	<file name="/Users/dtaieb/.m2/repository/org/apache/kafka/kafka-log4j-appender/0.10.0.0/kafka-log4j-appender-0.10.0.0.jar"/>
-    	<file name="/Users/dtaieb/watsondev/workspaces/cds_workspace/localcart/get-started-java/src/main/webapp/WEB-INF/lib/messagehub.login-1.0.0.jar"/>
+     <library id="kafkaLoginLib">
+    	<file name="${server.config.dir}/apps/expanded/LocalCartKafkaProducer.war/WEB-INF/lib/kafka-clients-0.10.0.0.jar"/>
+    	<file name="${server.config.dir}/apps/expanded/LocalCartKafkaProducer.war/WEB-INF/lib/kafka-log4j-appender-0.10.0.0.jar"/>
+    	<file name="${server.config.dir}/apps/expanded/LocalCartKafkaProducer.war/WEB-INF/lib/messagehub.login-1.0.0.jar"/>
     </library>
-    
-    <!-- library id="kafkaLoginLib">
-    	<file name="${server.config.dir}/dropins/LocalCartKafkaProducer.war/WEB-INF/lib/kafka-clients-0.10.0.0.jar"/>
-    	<file name="${server.config.dir}/dropins/LocalCartKafkaProducer.war/WEB-INF/lib/kafka-log4j-appender-0.10.0.0.jar"/>
-    	<file name="${server.config.dir}/dropins/LocalCartKafkaProducer.war/WEB-INF/lib/messagehub.login-1.0.0.jar">
-    </library-->
 
     <jaasLoginModule className="com.ibm.messagehub.login.MessageHubLoginModule" controlFlag="REQUIRED" id="KafkaClient" libraryRef="kafkaLoginLib">
                 
-        <options password="${env.MESSAGEHUB_PASSWORD}" serviceName="kafka" username="${env.MESSAGEHUB_USER}"/>
+        <options password="${env.KAFKA_PASSWORD}" serviceName="kafka" username="${env.KAFKA_USER_NAME}"/>
     </jaasLoginModule>
     
     <jaasLoginContextEntry id="KafkaClient" loginModuleRef="KafkaClient" name="KafkaClient"/>
