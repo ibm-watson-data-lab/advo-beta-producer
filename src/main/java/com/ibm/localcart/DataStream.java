@@ -70,8 +70,8 @@ public class DataStream {
 	}
 
 	private void loadSampleData() throws Exception{
-		URL url = new URL("https://github.com/ibm-cds-labs/advo-beta/raw/master/data/dataStream.json");
-	    
+		URL url = new URL("https://raw.githubusercontent.com/wdp-beta/get-started/master/data/dataStream.json");
+			    
 	    JsonParser parser = new JsonParser();
 	    try (InputStream is = url.openConnection().getInputStream()){
 		    JsonElement root = parser.parse( new InputStreamReader(is));
