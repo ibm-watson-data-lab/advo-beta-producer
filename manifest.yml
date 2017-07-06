@@ -4,4 +4,8 @@ applications:
    random-route: true
    path: target/LocalCartKafkaProducer.war
    memory: 512M
+   env:
+     KAFKA_USER_NAME: "" 
+     KAFKA_PASSWORD: ""
+     KAFKA_API_KEY: ""
    instances: 1
