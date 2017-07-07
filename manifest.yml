@@ -4,4 +4,8 @@ applications:
    random-route: true
    path: target/LocalCartKafkaProducer.war
    memory: 512M
+   env:
+     KAFKA_USER_NAME: replace-with-your-messagehub-user-name 
+     KAFKA_PASSWORD: replace-with-your-messagehub-password
+     KAFKA_API_KEY: replace-with-your-messagehub-api-key
    instances: 1
